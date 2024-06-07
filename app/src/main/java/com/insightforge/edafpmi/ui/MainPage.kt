@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
@@ -18,28 +19,50 @@ import androidx.navigation.NavController
 fun MainPage(navController: NavController) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "Search Dishes", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(8.dp))
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .align(Alignment.TopStart)
+            .padding(16.dp)) {
+            Text(text = "Search Dishes", style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(12.dp))
 
-        BasicTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.LightGray)
-                .padding(16.dp)
-        )
+            BasicTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.LightGray)
+                    .padding(16.dp),
+                decorationBox = { innerTextField ->
+                    if (searchQuery.text.isEmpty()) {
+                        Text(
+                            text = "search dish...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                    }
+                    innerTextField()
+                }
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Button(onClick = { /* TODO: Implement search */ }) {
-            Text("Search")
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = { /* TODO: Implement search */ },
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
+                    Text("Search")
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = { navController.navigate("savedDishes") }) {
+        Button(
+            onClick = { navController.navigate("savedDishes") },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        ) {
             Text("Saved Dishes")
         }
     }
