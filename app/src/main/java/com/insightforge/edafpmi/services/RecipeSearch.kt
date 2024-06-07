@@ -1,5 +1,6 @@
 package com.insightforge.edafpmi.services
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -16,10 +17,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import com.insightforge.edafpmi.dao.saveRecipeToFavorites
+import com.insightforge.edafpmi.database.DatabaseHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Composable
+/*@Composable
 fun RecipeSearch() {
     var query by remember { mutableStateOf(TextFieldValue("")) }
     val recipes = remember { mutableStateListOf<Recipe>() }
@@ -85,7 +88,7 @@ fun RecipeSearch() {
             }
         }
     }
-}
+}*/
 
 @Composable
 fun RecipeItem(recipe: Recipe, onClick: () -> Unit) {
@@ -106,7 +109,7 @@ fun RecipeItem(recipe: Recipe, onClick: () -> Unit) {
 }
 
 @Composable
-fun RecipeDetailDialog(recipe: Recipe, onDismiss: () -> Unit) {
+fun RecipeDetailDialog(recipe: Recipe, onDismiss: () -> Unit, context: Context) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -135,7 +138,10 @@ fun RecipeDetailDialog(recipe: Recipe, onDismiss: () -> Unit) {
                     Text("Close")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { /* Здесь будет логика сохранения в избранное */ }) {
+                Button(onClick = {
+                    saveRecipeToFavorites(context, recipe)
+                    onDismiss()
+                }) {
                     Text("Save to Favorites")
                 }
             }

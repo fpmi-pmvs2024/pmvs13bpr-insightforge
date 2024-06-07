@@ -1,9 +1,12 @@
 package com.insightforge.edafpmi.dao
 
 import android.content.ContentValues
+import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.insightforge.edafpmi.database.DatabaseHelper
 import com.insightforge.edafpmi.models.Dish
+import com.insightforge.edafpmi.services.Recipe
 
 class DishDAO(private val db: SQLiteDatabase) {
 
@@ -71,4 +74,49 @@ class DishDAO(private val db: SQLiteDatabase) {
         cursor.close()
         return dishes
     }
+}
+
+fun saveRecipeToFavorites(context: Context, recipe: Recipe) {
+    val dbHelper = DatabaseHelper(context)
+    val db = dbHelper.writableDatabase
+
+    val recipeValues = ContentValues().apply {
+        put("label", recipe.label)
+        put("image", recipe.image)
+        put("calories", recipe.calories)
+    }
+    val recipeId = db.insert("Recipe", null, recipeValues)
+
+    for (ingredient in recipe.ingredientLines) {
+        var ingredientId: Long
+
+        val cursor = db.query(
+            "Ingredient",
+            arrayOf("id"),
+            "name = ?",
+            arrayOf(ingredient),
+            null,
+            null,
+            null
+        )
+
+        if (cursor.moveToFirst()) {
+            ingredientId = cursor.getLong(cursor.getColumnIndexOrThrow("id"))
+        } else {
+            // Если ингредиента нет, вставляем его
+            val ingredientValues = ContentValues().apply {
+                put("name", ingredient)
+            }
+            ingredientId = db.insert("Ingredient", null, ingredientValues)
+        }
+        cursor.close()
+
+        val recipeIngredientValues = ContentValues().apply {
+            put("recipeId", recipeId)
+            put("ingredientId", ingredientId)
+        }
+        db.insert("RecipeIngredient", null, recipeIngredientValues)
+    }
+
+    db.close()
 }

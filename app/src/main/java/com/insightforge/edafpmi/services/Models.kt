@@ -20,6 +20,7 @@ data class Link(
 )
 
 data class Recipe(
+    val id: Long,
     @SerializedName("label") val label: String,
     @SerializedName("image") val image: String,
     @SerializedName("calories") val calories: Double,

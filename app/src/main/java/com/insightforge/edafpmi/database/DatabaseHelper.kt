@@ -8,23 +8,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "edafpmi.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        val createCuisineTable = """
-            CREATE TABLE Cuisine (
+        val createRecipeTable = """
+            CREATE TABLE Recipe (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                country TEXT NOT NULL
-            )
-        """
-        val createDishTable = """
-            CREATE TABLE Dish (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                calories INTEGER NOT NULL,
-                countryId INTEGER,
-                FOREIGN KEY(countryId) REFERENCES Cuisine(id)
+                label TEXT NOT NULL,
+                image TEXT NOT NULL,
+                calories REAL NOT NULL
             )
         """
         val createIngredientTable = """
@@ -33,28 +26,25 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 name TEXT NOT NULL
             )
         """
-        val createDishIngredientTable = """
-            CREATE TABLE DishIngredient (
-                dishId INTEGER,
+        val createRecipeIngredientTable = """
+            CREATE TABLE RecipeIngredient (
+                recipeId INTEGER,
                 ingredientId INTEGER,
-                amount REAL,
-                FOREIGN KEY(dishId) REFERENCES Dish(id),
+                FOREIGN KEY(recipeId) REFERENCES Recipe(id),
                 FOREIGN KEY(ingredientId) REFERENCES Ingredient(id),
-                PRIMARY KEY (dishId, ingredientId)
+                PRIMARY KEY (recipeId, ingredientId)
             )
         """
 
-        db.execSQL(createCuisineTable)
-        db.execSQL(createDishTable)
+        db.execSQL(createRecipeTable)
         db.execSQL(createIngredientTable)
-        db.execSQL(createDishIngredientTable)
+        db.execSQL(createRecipeIngredientTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS DishIngredient")
+        db.execSQL("DROP TABLE IF EXISTS RecipeIngredient")
         db.execSQL("DROP TABLE IF EXISTS Ingredient")
-        db.execSQL("DROP TABLE IF EXISTS Dish")
-        db.execSQL("DROP TABLE IF EXISTS Cuisine")
+        db.execSQL("DROP TABLE IF EXISTS Recipe")
         onCreate(db)
     }
 }

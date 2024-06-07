@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -28,6 +29,7 @@ fun MainPage(navController: NavController) {
     val scrollState = rememberScrollState()
     var foundRecipesCount by remember { mutableStateOf(0) }
     var nextPage by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -91,7 +93,7 @@ fun MainPage(navController: NavController) {
                     var showDialog by remember { mutableStateOf(false) }
 
                     if (showDialog) {
-                        RecipeDetailDialog(recipe = recipe, onDismiss = { showDialog = false })
+                        RecipeDetailDialog(recipe = recipe, onDismiss = { showDialog = false }, context = context)
                     }
 
                     RecipeItem(recipe = recipe, onClick = { showDialog = true })
