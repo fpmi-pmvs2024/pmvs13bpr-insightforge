@@ -1,9 +1,11 @@
 package com.insightforge.edafpmi.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,15 +16,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.insightforge.edafpmi.services.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainPage(navController: NavController) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+    val recipes = remember { mutableStateListOf<Recipe>() }
+    val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    var foundRecipesCount by remember { mutableStateOf(0) }
+    var nextPage by remember { mutableStateOf<String?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier
-            .align(Alignment.TopStart)
-            .padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
             Text(text = "Search Dishes", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -47,12 +59,65 @@ fun MainPage(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Button(
-                    onClick = { /* TODO: Implement search */ },
-                    modifier = Modifier.align(Alignment.Center)
+                    onClick = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            try {
+                                val recipeResponse = fetchRecipes(searchQuery.text)
+                                recipes.clear()
+                                recipes.addAll(recipeResponse.recipes)
+                                foundRecipesCount = recipeResponse.recipes.size
+                                nextPage = recipeResponse.nextPage
+                            } catch (e: Exception) {
+                                Log.e("RecipeSearch", "Error fetching recipes", e)
+                            }
+                        }
+                    }
                 ) {
                     Text("Search")
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = "Found: $foundRecipesCount")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column(modifier = Modifier.verticalScroll(scrollState)) {
+                recipes.forEach { recipe ->
+                    var showDialog by remember { mutableStateOf(false) }
+
+                    if (showDialog) {
+                        RecipeDetailDialog(recipe = recipe, onDismiss = { showDialog = false })
+                    }
+
+                    RecipeItem(recipe = recipe, onClick = { showDialog = true })
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                if (nextPage != null) {
+                    Button(
+                        onClick = {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                try {
+                                    val recipeResponse = fetchRecipesFromUrl(nextPage!!)
+                                    recipes.addAll(recipeResponse.recipes)
+                                    foundRecipesCount += recipeResponse.recipes.size
+                                    nextPage = recipeResponse.nextPage
+                                } catch (e: Exception) {
+                                    Log.e("RecipeSearch", "Error fetching next page recipes", e)
+                                }
+                            }
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Show More")
+                    }
                 }
             }
         }

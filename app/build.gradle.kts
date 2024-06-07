@@ -50,7 +50,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,9 +57,18 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.navigation.runtime.ktx)
-    implementation(libs.androidx.material3.android)
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.material3)
+
+    // OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+
+    // Gson
+    implementation("com.google.code.gson:gson:2.9.1")
+
+    implementation("io.coil-kt:coil-compose:2.1.0")
+
+    implementation("androidx.navigation:navigation-compose:2.5.3")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

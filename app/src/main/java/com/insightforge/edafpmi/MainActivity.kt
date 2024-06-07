@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
@@ -16,6 +15,7 @@ import com.insightforge.edafpmi.ui.theme.EdaFPMITheme
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.insightforge.edafpmi.services.RecipeSearch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +49,9 @@ fun MyApp() {
         ) { backStackEntry ->
             val dishName = backStackEntry.arguments?.getString("dishName") ?: ""
             DishDetailPage(dishName)
+        }
+        composable("recipeSearch") {
+            RecipeSearch()
         }
     }
 }
